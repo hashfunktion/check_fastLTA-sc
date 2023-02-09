@@ -4,7 +4,8 @@
 #
 # Icinga check-plugin for FastLTA Silent Cube
 #
-# Copyright (C) 2017 Jesse Reppin
+# Copyright (C) 2019 Jesse Reppin
+# Contributor - log1
 #
 # Report bugs to:  https://github.com/hashfunktion/check_fastLTA-sc
 #

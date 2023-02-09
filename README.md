@@ -19,7 +19,10 @@ This is a basic check-plugin for icinga based on SNMP to check Silent Cubes from
 	headunit-status    ->   Working state from the Headunit  
 	replica-status     ->   Checks if the replication works  
 	sc-status          ->   Checks the Silent Cube status  
-	sc-capusage        ->  Check the percentage usage of the silentcube
+	sc-capusage        ->   Check the percentage usage of the silentcube
+	sc-disks           ->   Check the disks of the silentcube"
+	sc-fans            ->   Check the fans of the silentcube"
+	sc-psus            ->   Check the psus of the silentcube"
 
 [-w]  Warning threshold
 

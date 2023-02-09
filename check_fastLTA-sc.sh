@@ -1,30 +1,31 @@
 #!/bin/bash
 
 ###############################################
-        #
-        # Icinga check-plugin for FastLTA Silent Cube
-        #
-        # Copyright (C) 2017 Jesse Reppin
-        #
-        # Report bugs to:  https://github.com/hashfunktion/check_fastLTA-sc
-        #
-        # Created:      Version 0.1 - 2017-01-20 - Create check-plugins first version
-        # Updated:      Version 1.0 - 2017-01-27 - Puplication first stable version
-	# Updated:	Version 1.1 - 2023-02-09 - Added checks for fans, disks and psus
-        #
-        # This program is free software: you can redistribute it and/or modify
-        # it under the terms of the GNU General Public License as published by
-        # the Free Software Foundation, either version 3 of the License, or
-        # (at your option) any later version.
-        #
-        # This program is distributed in the hope that it will be useful,
-        # but WITHOUT ANY WARRANTY; without even the implied warranty of
-        # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-        # GNU General Public License for more details.
-        #
-        # You should have received a copy of the GNU General Public License
-        # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-        #
+#
+# Icinga check-plugin for FastLTA Silent Cube
+#
+# Copyright (C) 2023 Jesse Reppin
+# Contributor - log1-c
+#
+# Report bugs to:  https://github.com/hashfunktion/check_fastLTA-sc
+#
+# Created:	Version 0.1 - 2017-01-20 - Create check-plugins first version
+# Updated:	Version 1.0 - 2017-01-27 - Puplication first stable version
+# Updated:	Version 1.1 - 2023-02-09 - Added checks for fans, disks and psus
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 ###############################################
 
 ###############################################

@@ -66,19 +66,30 @@ scnumokfans=".1.3.6.1.4.1.27417.3.1.1.17"
 #Headunit Status
 headok="60"
 #workerDefect (-1),
-        #workerNotStarted (-2),
-        #workerBooting (2),
-        #workerRfRRunning (3),
-        #appBooting(10),
-        #appNoCubes(20),
-        #appVirginCubes(30),
-        #appRfrPossible(40),
-        #appRfrMixedCubes(45),
-        #appRfrActive(50),
-        #appReady(60),
-        #appMixedCubes(65),
-        #appReadOnly(70),
-        #appEnterpriseCubes(75),
+workerDefect="-1"
+#workerNotStarted (-2),
+workerNotStarted="-2"
+#workerBooting (2),
+workerBooting="2"
+#workerRfRRunning (3),
+workerRfRRunning="3"
+#appBooting(10),
+appBooting="10"
+#appNoCubes(20),
+appNoCubes="20"
+#appVirginCubes(30),
+appVirginCubes=30
+#appRfrPossible(40),
+appRfrPossible="40"
+#appRfrMixedCubes(45),
+appRfrMixedCubes="45"
+#appRfrActive(50),
+appRfrActive="50"
+#appReady(60),
+#appMixedCubes(65),
+#appReadOnly(70),
+appReadOnly="70"
+#appEnterpriseCubes(75),
 #appEnterpriseMixedCubes(80)
 
 
@@ -162,12 +173,56 @@ done
 case $type in
         headunit-status) mib=$statushead;
         get_data;
-        if [[ $res -ne $headok ]]; then
-                echo "CRITICAL - "$res"";
-                exit $STATE_CRITICAL;
-                else
+        if [[ $res -eq $headok ]]; then
                 echo "OK - Headunit operating normal";
                 exit $STATE_OK;
+        elif [[ $res -eq $workerDefect ]]; then
+            echo "CRITICAL - workerDefect";
+            exit $STATE_CRITICAL;
+
+        elif [[ $res -eq $workerNotStarted ]]; then
+            echo "CRITICAL - Worker not started";
+            exit $STATE_CRITICAL;
+
+        elif [[ $res -eq $workerBooting ]]; then
+            echo "WARNING - Worker booting";
+            exit $STATE_WARNING;
+
+        elif [[ $res -eq $workerRfRRunning ]]; then
+            echo "OK - Worker ready for RFR running";
+            exit $STATE_OK;
+
+        elif [[ $res -eq $appBooting ]]; then
+            echo "OK - Application booting";
+            exit $STATE_OK;
+
+        elif [[ $res -eq $appNoCubes ]]; then
+            echo "CRITICAL - No cubes detected";
+            exit $STATE_CRITICAL;
+
+        elif [[ $res -eq $appVirginCubes ]]; then
+            echo "WARNING - Virgin cubes available";
+            exit $STATE_WARNING;
+
+        elif [[ $res -eq $appRfrPossible ]]; then
+            echo "INFO - RFR possible";
+            exit $STATE_OK;
+
+        elif [[ $res -eq $appRfrMixedCubes ]]; then
+            echo "INFO - RFR with mixed cubes";
+            exit $STATE_OK;
+
+        elif [[ $res -eq $appRfrActive ]]; then
+            echo "INFO - RFR active";
+            exit $STATE_OK;
+
+        elif [[ $res -eq $appReadOnly ]]; then
+            echo "WARNING - Application in read-only mode";
+            exit $STATE_WARNING;
+
+        else
+            echo "CRITICAL - Unknown status code: "$res"";
+            exit $STATE_CRITICAL;
         fi;
         ;;
 

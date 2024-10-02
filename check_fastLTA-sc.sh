@@ -4,7 +4,7 @@
 #
 # Icinga check-plugin for FastLTA Silent Cube
 #
-# Copyright (C) 2023 Jesse Reppin
+# Copyright (C) 2024 Jesse Reppin - hashfunktion
 # Contributor - log1-c
 #
 # Report bugs to:  https://github.com/hashfunktion/check_fastLTA-sc
@@ -12,6 +12,7 @@
 # Created:	Version 0.1 - 2017-01-20 - Create check-plugins first version
 # Updated:	Version 1.0 - 2017-01-27 - Puplication first stable version
 # Updated:	Version 1.1 - 2023-02-09 - Added checks for fans, disks and psus
+# Updated:      Version 1.2 - 2024-10-02 - Update MIB Codes and add multiple Check Outputs for headunit-status
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +35,7 @@
 #
 
 ## Check-Plugin Version
-Version="1.1"
+Version="1.2"
 
 ## EXIT CODES
 STATE_OK=0

@@ -66,6 +66,9 @@ List name: fastLTA_variable-list
 | replica-status    | Replication status           	|
 | sc-status            | Operation status Silent Cube 	|
 | sc-capusage      | Percentage usage Silent Cube 	|
+| sc-disks     | Status of Silent Cube Disks	|
+| sc-fans      | Status of Silent Cube fans	|
+| sc-psus      | Status of Silent Cube psus	|
 
 #### Datafield
 Field name: fastLTA_variable

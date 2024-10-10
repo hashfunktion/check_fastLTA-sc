@@ -1,11 +1,10 @@
 # Check FastLTA Silent Cube
-### Icinga check-plugin for FastLTA Silent Cube
+**Icinga check-plugin for FastLTA Silent Cube**
+
 This is a basic check-plugin for icinga based on SNMP to check Silent Cubes from FastLTA.
 
-[TOC]
 
-
-##Usage
+## Usage
 
 	.\check_fastLTA-sc.pl -H <HOSTNAME> -C <SNMP-Community> -o <check option> -w <warning threshold> -c <critical threshold> [ -h <for help/usage> ]
 
@@ -23,6 +22,7 @@ This is a basic check-plugin for icinga based on SNMP to check Silent Cubes from
 	sc-disks           ->   Check the disks of the silentcube
 	sc-fans            ->   Check the fans of the silentcube
 	sc-psus            ->   Check the psus of the silentcube
+	sc-pending         ->   Check the pending Items on the silentcube Volumes
 
 [-w]  Warning threshold
 
@@ -40,6 +40,7 @@ This is a basic check-plugin for icinga based on SNMP to check Silent Cubes from
 
 	   arguments = {
         "-H" = "$fastLTA_address$"
+		"-C" = "$SNMP-Community"
         "-o" = "$fastLTA_variable$"
         "-w" = "$fastLTA_warn$"
         "-c" = "$fastLTA_crit$"
@@ -60,15 +61,16 @@ This is a basic check-plugin for icinga based on SNMP to check Silent Cubes from
 ### Using Icinga Director
 #### Datalist
 List name: fastLTA_variable-list
-| Key                     | Lable                        	|
+| Key                   | Lable                        	|
 |-------------------	|------------------------------	|
-| headunit-status | Headunit status              	|
-| replica-status    | Replication status           	|
-| sc-status            | Operation status Silent Cube 	|
-| sc-capusage      | Percentage usage Silent Cube 	|
-| sc-disks     | Status of Silent Cube Disks	|
-| sc-fans      | Status of Silent Cube fans	|
-| sc-psus      | Status of Silent Cube psus	|
+| headunit-status 		| Headunit status              	|
+| replica-status    	| Replication status           	|
+| sc-status            	| Operation status Silent Cube 	|
+| sc-capusage      		| Percentage usage Silent Cube 	|
+| sc-disks     			| Status of Silent Cube Disks	|
+| sc-fans      			| Status of Silent Cube fans	|
+| sc-psus      			| Status of Silent Cube psus	|
+| sc-pending   			| Number of pending Items on Volume |
 
 #### Datafield
 Field name: fastLTA_variable
@@ -81,3 +83,9 @@ Field name: fastLTA_warn
 
 Field name: fastLTA_crit
 : Caption: fastLTA_crit
+
+
+# License
+
+Published under GNU General Public License v3.0
+© Jesse Reppin - 2024

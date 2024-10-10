@@ -12,7 +12,8 @@
 # Created:	Version 0.1 - 2017-01-20 - Create check-plugins first version
 # Updated:	Version 1.0 - 2017-01-27 - Puplication first stable version
 # Updated:	Version 1.1 - 2023-02-09 - Added checks for fans, disks and psus
-# Updated:      Version 1.2 - 2024-10-02 - Update MIB Codes and add multiple Check Outputs for headunit-status
+# Updated:      Version 1.2 - 2024-10-10 - Update MIB Codes and add multiple Check Outputs for headunit-status.
+#                                          Add check for pending Items and change the output from Cube IP to Cube MAC-Adress
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -111,6 +112,7 @@ usage() {
 	echo "                          sc-disks             	#Check the disks of the silentcube"
 	echo "                          sc-fans             	#Check the fans of the silentcube"
 	echo "                          sc-psus             	#Check the psus of the silentcube"
+    	echo "                          sc-pending             	#Check the pending Items on Volumes"
         echo ""
         echo "          -w      Warning threshold"
         echo "          -c      Critical threshold"

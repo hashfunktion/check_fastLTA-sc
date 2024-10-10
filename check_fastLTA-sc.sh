@@ -54,9 +54,11 @@ statusreplica=".1.3.6.1.4.1.27417.2.5.0"
 statussc=".1.3.6.1.4.1.27417.3.1.1.7.0"
 totalcapsc=".1.3.6.1.4.1.27417.3.2.0"
 usedcapsc=".1.3.6.1.4.1.27417.3.3.0"
+pendingitems=".1.3.6.1.4.1.27417.5.1.1.7"
 
 #hardware
 scips=".1.3.6.1.4.1.27417.3.1.1.6"
+scmacs=".1.3.6.1.4.1.27417.3.1.1.2"
 scnumdisks=".1.3.6.1.4.1.27417.3.1.1.12"
 scnumokdisks=".1.3.6.1.4.1.27417.3.1.1.13"
 scnumpsus=".1.3.6.1.4.1.27417.3.1.1.14"
@@ -66,32 +68,21 @@ scnumokfans=".1.3.6.1.4.1.27417.3.1.1.17"
 
 #Headunit Status
 headok="60"
-#workerDefect (-1),
 workerDefect="-1"
-#workerNotStarted (-2),
 workerNotStarted="-2"
-#workerBooting (2),
 workerBooting="2"
-#workerRfRRunning (3),
 workerRfRRunning="3"
-#appBooting(10),
 appBooting="10"
-#appNoCubes(20),
 appNoCubes="20"
-#appVirginCubes(30),
 appVirginCubes=30
-#appRfrPossible(40),
 appRfrPossible="40"
-#appRfrMixedCubes(45),
 appRfrMixedCubes="45"
-#appRfrActive(50),
 appRfrActive="50"
-#appReady(60),
-#appMixedCubes(65),
-#appReadOnly(70),
+appReady="60"
+appMixedCubes="65"
 appReadOnly="70"
-#appEnterpriseCubes(75),
-#appEnterpriseMixedCubes(80)
+appEnterpriseCubes="75"
+appEnterpriseMixedCubes="80"
 
 
 #clean VARIABLES
@@ -279,11 +270,11 @@ case $type in
         ;;
 
         sc-disks)
-        mib=$scips;
-        scnumberips=($(snmpwalk -v 2c -c $commun $host $mib -Oqv ));
-        countscips=${#scnumberips[@]};
+        mib=$scmacs;
+        scnumbers=($(snmpwalk -v 2c -c $commun $host $mib -Oqv ));
+        countscs=${#scnumbers[@]};
 
-        for (( c=0; c<countscips; c++ ));
+        for (( c=0; c<countscs; c++ ));
                 do
                         mib="$scnumdisks.$c";
                         get_data;
@@ -292,12 +283,12 @@ case $type in
                         get_data;
                         numokdisks=$res;
                         if [[ $numokdisks -lt $numdisks  ]]; then
-                                mib="$scips.$c";
+                                mib="$scmacs.$c";
                                 get_data;
                                 if [[ $output == "" ]];then
-                                        output="IP($res): $numokdisks of $numdisks are OK!";
+                                        output="MAC($res): $numokdisks of $numdisks are OK!";
                                 else
-                                        output="$output\nIP($res): $numokdisks of $numdisks are OK!";
+                                        output="$output\nMAC($res): $numokdisks of $numdisks are OK!";
                                 fi;
                                 disks_failed=true;
                         fi;
@@ -318,11 +309,11 @@ case $type in
         ;;
 		
 		sc-psus)
-        mib=$scips;
-        scnumberips=($(snmpwalk -v 2c -c $commun $host $mib -Oqv ));
-        countscips=${#scnumberips[@]};
+        mib=$scmacs;
+        scnumbers=($(snmpwalk -v 2c -c $commun $host $mib -Oqv ));
+        countscs=${#scnumbers[@]};
 
-        for (( c=0; c<countscips; c++ ));
+        for (( c=0; c<countscs; c++ ));
                 do
                         mib="$scnumpsus.$c";
                         get_data;
@@ -357,11 +348,11 @@ case $type in
         ;;
 		
 		sc-fans)
-        mib=$scips;
-        scnumberips=($(snmpwalk -v 2c -c $commun $host $mib -Oqv ));
-        countscips=${#scnumberips[@]};
+        mib=$scmacs;
+        scnumbers=($(snmpwalk -v 2c -c $commun $host $mib -Oqv ));
+        countscs=${#scnumbers[@]};
 
-        for (( c=0; c<countscips; c++ ));
+        for (( c=0; c<countscs; c++ ));
                 do
                         mib="$scnumfans.$c";
                         get_data;
@@ -370,12 +361,12 @@ case $type in
                         get_data;
                         numokfans=$res;
                         if [[ $numokfans -lt $numfans  ]]; then
-                                mib="$scips.$c";
+                                mib="$scmacs.$c";
                                 get_data;
                                 if [[ $output == "" ]];then
-                                        output="IP($res): $numokfans of $numfans are OK!";
+                                        output="MAC($res): $numokfans of $numfans are OK!";
                                 else
-                                        output="$output\nIP($res): $numokfans of $numfans are OK!";
+                                        output="$output\nMAC($res): $numokfans of $numfans are OK!";
                                 fi;
                                 fans_failed=true;
                         fi;
@@ -388,6 +379,60 @@ case $type in
                 exit $STATE_CRITICAL
          else
                 echo "All fans OK!"
+                if [[ $output != "" ]]; then 
+					echo -e $output; 
+				fi;
+                exit $STATE_OK
+        fi;
+        ;;
+
+        	sc-pending)
+        mib=$scmacs;
+        scnumbers=($(snmpwalk -v 2c -c $commun $host $mib -Oqv ));
+        countscs=${#scnumbers[@]};
+
+        for (( c=0; c<countscs; c++ ));
+                do
+                        mib="$pendingitems.$c";
+                        get_data;
+                        pendit=$res;
+                        if [[ $pendit -ge $crit  ]]; then
+                                mib="$scmacs.$c";
+                                get_data;
+                                if [[ $output == "" ]];then
+                                        output="MAC($res): $pendit pending archivable Items!";
+                                else
+                                        output="$output\nMAC($res): $numokfans of $numfans are OK!";
+                                fi;
+                                pending_crit=true;
+
+                        elif [[ $pendit -ge $warn  ]]; then
+                                mib="$scmacs.$c";
+                                get_data;
+                                if [[ $output == "" ]];then
+                                        output="MAC($res): $pendit pending archivable Items!";
+                                else
+                                        output="$output\nMAC($res): $numokfans of $numfans are OK!";
+                                fi;
+                                pending_warn=true;
+                        fi;
+                done
+        if [ $pending_crit ]; then
+                echo "Pending archivable Items!"
+                if [[ $output != "" ]]; then 
+					echo -e $output; 
+				fi;
+                exit $STATE_CRITICAL
+        
+        elif [ $pending_crit ]; then
+                echo "Pending archivable Items!"
+                if [[ $output != "" ]]; then 
+					echo -e $output; 
+				fi;
+                exit $STATE_WARNING
+        
+        else
+                echo "No pending archivable Items!"
                 if [[ $output != "" ]]; then 
 					echo -e $output; 
 				fi;

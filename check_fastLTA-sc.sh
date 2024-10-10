@@ -4,7 +4,7 @@
 #
 # Icinga check-plugin for FastLTA Silent Cube
 #
-# Copyright (C) 2023 Jesse Reppin
+# Copyright (C) 2024 Jesse Reppin - hashfunktion
 # Contributor - log1-c
 #
 # Report bugs to:  https://github.com/hashfunktion/check_fastLTA-sc
@@ -12,6 +12,8 @@
 # Created:	Version 0.1 - 2017-01-20 - Create check-plugins first version
 # Updated:	Version 1.0 - 2017-01-27 - Puplication first stable version
 # Updated:	Version 1.1 - 2023-02-09 - Added checks for fans, disks and psus
+# Updated:      Version 1.2 - 2024-10-10 - Update MIB Codes and add multiple Check Outputs for headunit-status.
+#                                          Add check for pending Items and change the output from Cube IP to Cube MAC-Adress
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +36,7 @@
 #
 
 ## Check-Plugin Version
-Version="1.1"
+Version="1.2"
 
 ## EXIT CODES
 STATE_OK=0
@@ -53,9 +55,11 @@ statusreplica=".1.3.6.1.4.1.27417.2.5.0"
 statussc=".1.3.6.1.4.1.27417.3.1.1.7.0"
 totalcapsc=".1.3.6.1.4.1.27417.3.2.0"
 usedcapsc=".1.3.6.1.4.1.27417.3.3.0"
+pendingitems=".1.3.6.1.4.1.27417.5.1.1.7"
 
 #hardware
 scips=".1.3.6.1.4.1.27417.3.1.1.6"
+scmacs=".1.3.6.1.4.1.27417.3.1.1.2"
 scnumdisks=".1.3.6.1.4.1.27417.3.1.1.12"
 scnumokdisks=".1.3.6.1.4.1.27417.3.1.1.13"
 scnumpsus=".1.3.6.1.4.1.27417.3.1.1.14"
@@ -65,21 +69,21 @@ scnumokfans=".1.3.6.1.4.1.27417.3.1.1.17"
 
 #Headunit Status
 headok="60"
-#workerDefect (-1),
-        #workerNotStarted (-2),
-        #workerBooting (2),
-        #workerRfRRunning (3),
-        #appBooting(10),
-        #appNoCubes(20),
-        #appVirginCubes(30),
-        #appRfrPossible(40),
-        #appRfrMixedCubes(45),
-        #appRfrActive(50),
-        #appReady(60),
-        #appMixedCubes(65),
-        #appReadOnly(70),
-        #appEnterpriseCubes(75),
-#appEnterpriseMixedCubes(80)
+workerDefect="-1"
+workerNotStarted="-2"
+workerBooting="2"
+workerRfRRunning="3"
+appBooting="10"
+appNoCubes="20"
+appVirginCubes=30
+appRfrPossible="40"
+appRfrMixedCubes="45"
+appRfrActive="50"
+appReady="60"
+appMixedCubes="65"
+appReadOnly="70"
+appEnterpriseCubes="75"
+appEnterpriseMixedCubes="80"
 
 
 #clean VARIABLES
@@ -108,6 +112,7 @@ usage() {
 	echo "                          sc-disks             	#Check the disks of the silentcube"
 	echo "                          sc-fans             	#Check the fans of the silentcube"
 	echo "                          sc-psus             	#Check the psus of the silentcube"
+    	echo "                          sc-pending             	#Check the pending Items on Volumes"
         echo ""
         echo "          -w      Warning threshold"
         echo "          -c      Critical threshold"
@@ -162,12 +167,56 @@ done
 case $type in
         headunit-status) mib=$statushead;
         get_data;
-        if [[ $res -ne $headok ]]; then
-                echo "CRITICAL - "$res"";
-                exit $STATE_CRITICAL;
-                else
+        if [[ $res -eq $headok ]]; then
                 echo "OK - Headunit operating normal";
                 exit $STATE_OK;
+        elif [[ $res -eq $workerDefect ]]; then
+            echo "CRITICAL - workerDefect";
+            exit $STATE_CRITICAL;
+
+        elif [[ $res -eq $workerNotStarted ]]; then
+            echo "CRITICAL - Worker not started";
+            exit $STATE_CRITICAL;
+
+        elif [[ $res -eq $workerBooting ]]; then
+            echo "WARNING - Worker booting";
+            exit $STATE_WARNING;
+
+        elif [[ $res -eq $workerRfRRunning ]]; then
+            echo "OK - Worker ready for RFR running";
+            exit $STATE_OK;
+
+        elif [[ $res -eq $appBooting ]]; then
+            echo "OK - Application booting";
+            exit $STATE_OK;
+
+        elif [[ $res -eq $appNoCubes ]]; then
+            echo "CRITICAL - No cubes detected";
+            exit $STATE_CRITICAL;
+
+        elif [[ $res -eq $appVirginCubes ]]; then
+            echo "WARNING - Virgin cubes available";
+            exit $STATE_WARNING;
+
+        elif [[ $res -eq $appRfrPossible ]]; then
+            echo "INFO - RFR possible";
+            exit $STATE_OK;
+
+        elif [[ $res -eq $appRfrMixedCubes ]]; then
+            echo "INFO - RFR with mixed cubes";
+            exit $STATE_OK;
+
+        elif [[ $res -eq $appRfrActive ]]; then
+            echo "INFO - RFR active";
+            exit $STATE_OK;
+
+        elif [[ $res -eq $appReadOnly ]]; then
+            echo "WARNING - Application in read-only mode";
+            exit $STATE_WARNING;
+
+        else
+            echo "CRITICAL - Unknown status code: "$res"";
+            exit $STATE_CRITICAL;
         fi;
         ;;
 
@@ -223,11 +272,11 @@ case $type in
         ;;
 
         sc-disks)
-        mib=$scips;
-        scnumberips=($(snmpwalk -v 2c -c $commun $host $mib -Oqv ));
-        countscips=${#scnumberips[@]};
+        mib=$scmacs;
+        scnumbers=($(snmpwalk -v 2c -c $commun $host $mib -Oqv ));
+        countscs=${#scnumbers[@]};
 
-        for (( c=0; c<countscips; c++ ));
+        for (( c=0; c<countscs; c++ ));
                 do
                         mib="$scnumdisks.$c";
                         get_data;
@@ -236,12 +285,12 @@ case $type in
                         get_data;
                         numokdisks=$res;
                         if [[ $numokdisks -lt $numdisks  ]]; then
-                                mib="$scips.$c";
+                                mib="$scmacs.$c";
                                 get_data;
                                 if [[ $output == "" ]];then
-                                        output="IP($res): $numokdisks of $numdisks are OK!";
+                                        output="MAC($res): $numokdisks of $numdisks are OK!";
                                 else
-                                        output="$output\nIP($res): $numokdisks of $numdisks are OK!";
+                                        output="$output\nMAC($res): $numokdisks of $numdisks are OK!";
                                 fi;
                                 disks_failed=true;
                         fi;
@@ -262,11 +311,11 @@ case $type in
         ;;
 		
 		sc-psus)
-        mib=$scips;
-        scnumberips=($(snmpwalk -v 2c -c $commun $host $mib -Oqv ));
-        countscips=${#scnumberips[@]};
+        mib=$scmacs;
+        scnumbers=($(snmpwalk -v 2c -c $commun $host $mib -Oqv ));
+        countscs=${#scnumbers[@]};
 
-        for (( c=0; c<countscips; c++ ));
+        for (( c=0; c<countscs; c++ ));
                 do
                         mib="$scnumpsus.$c";
                         get_data;
@@ -301,11 +350,11 @@ case $type in
         ;;
 		
 		sc-fans)
-        mib=$scips;
-        scnumberips=($(snmpwalk -v 2c -c $commun $host $mib -Oqv ));
-        countscips=${#scnumberips[@]};
+        mib=$scmacs;
+        scnumbers=($(snmpwalk -v 2c -c $commun $host $mib -Oqv ));
+        countscs=${#scnumbers[@]};
 
-        for (( c=0; c<countscips; c++ ));
+        for (( c=0; c<countscs; c++ ));
                 do
                         mib="$scnumfans.$c";
                         get_data;
@@ -314,12 +363,12 @@ case $type in
                         get_data;
                         numokfans=$res;
                         if [[ $numokfans -lt $numfans  ]]; then
-                                mib="$scips.$c";
+                                mib="$scmacs.$c";
                                 get_data;
                                 if [[ $output == "" ]];then
-                                        output="IP($res): $numokfans of $numfans are OK!";
+                                        output="MAC($res): $numokfans of $numfans are OK!";
                                 else
-                                        output="$output\nIP($res): $numokfans of $numfans are OK!";
+                                        output="$output\nMAC($res): $numokfans of $numfans are OK!";
                                 fi;
                                 fans_failed=true;
                         fi;
@@ -332,6 +381,60 @@ case $type in
                 exit $STATE_CRITICAL
          else
                 echo "All fans OK!"
+                if [[ $output != "" ]]; then 
+					echo -e $output; 
+				fi;
+                exit $STATE_OK
+        fi;
+        ;;
+
+        	sc-pending)
+        mib=$scmacs;
+        scnumbers=($(snmpwalk -v 2c -c $commun $host $mib -Oqv ));
+        countscs=${#scnumbers[@]};
+
+        for (( c=0; c<countscs; c++ ));
+                do
+                        mib="$pendingitems.$c";
+                        get_data;
+                        pendit=$res;
+                        if [[ $pendit -ge $crit  ]]; then
+                                mib="$scmacs.$c";
+                                get_data;
+                                if [[ $output == "" ]];then
+                                        output="MAC($res): $pendit pending archivable Items!";
+                                else
+                                        output="$output\nMAC($res): $numokfans of $numfans are OK!";
+                                fi;
+                                pending_crit=true;
+
+                        elif [[ $pendit -ge $warn  ]]; then
+                                mib="$scmacs.$c";
+                                get_data;
+                                if [[ $output == "" ]];then
+                                        output="MAC($res): $pendit pending archivable Items!";
+                                else
+                                        output="$output\nMAC($res): $numokfans of $numfans are OK!";
+                                fi;
+                                pending_warn=true;
+                        fi;
+                done
+        if [ $pending_crit ]; then
+                echo "Pending archivable Items!"
+                if [[ $output != "" ]]; then 
+					echo -e $output; 
+				fi;
+                exit $STATE_CRITICAL
+        
+        elif [ $pending_crit ]; then
+                echo "Pending archivable Items!"
+                if [[ $output != "" ]]; then 
+					echo -e $output; 
+				fi;
+                exit $STATE_WARNING
+        
+        else
+                echo "No pending archivable Items!"
                 if [[ $output != "" ]]; then 
 					echo -e $output; 
 				fi;
